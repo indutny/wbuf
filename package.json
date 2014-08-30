@@ -1,0 +1,26 @@
+{
+  "name": "wbuf",
+  "version": "0.0.0",
+  "description": "Write buffer",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:indunty/wbuf"
+  },
+  "keywords": [
+    "Write",
+    "Buffer"
+  ],
+  "author": "Fedor Indutny <fedor@indutny.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indunty/wbuf/issues"
+  },
+  "homepage": "https://github.com/indunty/wbuf",
+  "devDependencies": {
+    "mocha": "^1.21.4"
+  }
+}
