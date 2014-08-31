@@ -91,4 +91,17 @@ describe('WriteBuffer', function() {
         '7c7d7e7fabbadead');
     });
   });
+
+  describe('.skip', function() {
+    it('should copy bytes', function() {
+      w.reserve(5);
+      var h = w.skip(4);
+      w.writeUInt32BE(0xabbadead);
+      h.writeUInt32BE(0xdeadbeef);
+
+      assert.equal(
+        join(w.render()),
+        'deadbeefabbadead');
+    });
+  });
 });

@@ -4,6 +4,7 @@ function WBuf() {
   this.buffers = [];
   this.toReserve = 0;
   this.size = 0;
+  this.maxSize = 0;
   this.avail = 0;
 
   this.last = null;
@@ -22,10 +23,10 @@ WBuf.prototype._ensure = function _ensure(n) {
   if (this.avail >= n)
     return;
 
-  if (this.toReserve < n) {
-    this.toReserve = Math.max(Math.max(this.reserveRate, n - this.avail),
-                              this.toReserve);
-  }
+  if (this.toReserve === 0)
+    this.toReserve = this.reserveRate;
+
+  this.toReserve = Math.max(n - this.avail, this.toReserve);
 
   if (this.avail === 0)
     this._next();
@@ -41,17 +42,40 @@ WBuf.prototype._next = function _next() {
   this.last = buf;
 };
 
+WBuf.prototype._rangeCheck = function _rangeCheck() {
+  if (this.maxSize !== 0 && this.size > this.maxSize)
+    throw new RangeError('WBuf overflow');
+};
+
 WBuf.prototype._move = function _move(n) {
   this.size += n;
   this.avail -= n;
   if (this.avail === 0)
     this.last = null;
+
+  this._rangeCheck();
+};
+
+WBuf.prototype.slice = function slice(start, end) {
+  if (this.last === null)
+    this._next();
+
+  var res = new WBuf();
+  res.buffers.push(this.last);
+  res.last = this.last;
+  res.offset = this.offset;
+  res.maxSize = end - start;
+  res.avail = res.maxSize;
+
+  return res;
 };
 
 WBuf.prototype.skip = function skip(n) {
   if (n === 0)
     return;
   this._ensure(n);
+
+  var res = this.slice(this.size, this.size + n);
 
   var left = n;
   while (left > 0) {
@@ -61,11 +85,17 @@ WBuf.prototype.skip = function skip(n) {
     if (toSkip === this.avail) {
       if (left !== 0)
         this._next();
+      else
+        this.avail -= toSkip;
     } else {
       this.offset += toSkip;
       this.avail -= toSkip;
     }
   }
+
+  this._rangeCheck();
+
+  return res;
 };
 
 WBuf.prototype.copyFrom = function copyFrom(buf) {
@@ -83,11 +113,15 @@ WBuf.prototype.copyFrom = function copyFrom(buf) {
     if (toCopy === this.avail) {
       if (off !== len)
         this._next();
+      else
+        this.avail = 0;
     } else {
       this.offset += toCopy;
       this.avail -= toCopy;
     }
   }
+
+  this._rangeCheck();
 };
 
 WBuf.prototype.writeUInt8 = function writeUInt8(v) {
