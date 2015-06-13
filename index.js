@@ -98,13 +98,13 @@ WBuf.prototype.skip = function skip(n) {
   return res;
 };
 
-WBuf.prototype.copyFrom = function copyFrom(buf) {
-  if (buf.length === 0)
+WBuf.prototype.copyFrom = function copyFrom(buf, start, end) {
+  var off = start === undefined ? 0 : start;
+  var len = end === undefined ? buf.length : end;
+  if (off === len)
     return;
-  this._ensure(buf.length);
 
-  var len = buf.length;
-  var off = 0;
+  this._ensure(len - off);
   while (off < len) {
     var toCopy = Math.min(len - off, this.avail);
     buf.copy(this.last, this.offset, off, off + toCopy);

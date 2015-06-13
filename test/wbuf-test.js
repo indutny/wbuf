@@ -90,6 +90,19 @@ describe('WriteBuffer', function() {
         '5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b' +
         '7c7d7e7fabbadead');
     });
+
+    it('should copy bytes using offset', function() {
+      var tmp = new Buffer(128);
+      for (var i = 0; i < tmp.length; i++)
+        tmp[i] = i;
+      w.writeUInt32BE(0xdeadbeef);
+      w.copyFrom(tmp, 10, 12);
+      w.writeUInt32BE(0xabbadead);
+
+      assert.equal(
+        join(w.render()),
+        'deadbeef0a0babbadead');
+    });
   });
 
   describe('.skip', function() {
