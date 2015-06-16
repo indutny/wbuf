@@ -105,6 +105,33 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.write', function() {
+    it('should write utf8 string', function() {
+      w.writeUInt32BE(0xdeadbeef);
+      w.write('ohai\u1023');
+      w.writeUInt32BE(0xabbadead);
+
+      assert.equal(
+        join(w.render()),
+        'deadbeef' +
+            '6f6861691023' +
+            'abbadead');
+    });
+
+    it('should copy bytes using offset', function() {
+      var tmp = new Buffer(128);
+      for (var i = 0; i < tmp.length; i++)
+        tmp[i] = i;
+      w.writeUInt32BE(0xdeadbeef);
+      w.copyFrom(tmp, 10, 12);
+      w.writeUInt32BE(0xabbadead);
+
+      assert.equal(
+        join(w.render()),
+        'deadbeef0a0babbadead');
+    });
+  });
+
   describe('.skip', function() {
     it('should copy bytes', function() {
       w.reserve(5);

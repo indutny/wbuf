@@ -98,6 +98,27 @@ WBuf.prototype.skip = function skip(n) {
   return res;
 };
 
+WBuf.prototype.write = function write(str) {
+  var len = 0;
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    if (c > 255)
+      len += 2;
+    else
+      len += 1;
+  }
+  this.reserve(len);
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    var hi = c >>> 8;
+    var lo = c & 0xff;
+
+    if (hi)
+      this.writeUInt8(hi);
+    this.writeUInt8(lo);
+  }
+};
+
 WBuf.prototype.copyFrom = function copyFrom(buf, start, end) {
   var off = start === undefined ? 0 : start;
   var len = end === undefined ? buf.length : end;
