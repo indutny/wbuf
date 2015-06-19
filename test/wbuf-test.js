@@ -49,6 +49,23 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.writeUInt16LE', function() {
+    it('should write bytes', function() {
+      w.writeUInt16LE(0x0102);
+      w.writeUInt16LE(0x0304);
+      assert.equal(join(w.render()), '02010403');
+    });
+
+    it('should correctly handle overflow', function() {
+      w.reserve(2);
+      w.reserve(3);
+      w.writeUInt16LE(0x0102);
+      w.writeUInt16LE(0x0304);
+      w.writeUInt16LE(0x0506);
+      assert.equal(join(w.render()), '020104030605');
+    });
+  });
+
   describe('.writeUInt24BE', function() {
     it('should write bytes', function() {
       w.writeUInt24BE(0x010203);
@@ -57,11 +74,32 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.writeUInt24LE', function() {
+    it('should write bytes', function() {
+      w.writeUInt24LE(0x010203);
+      w.writeUInt24LE(0x040506);
+      assert.equal(join(w.render()), '030201060504');
+    });
+  });
+
   describe('.writeUInt32BE', function() {
     it('should write bytes', function() {
       w.writeUInt32BE(0x01020304);
       w.writeUInt32BE(0x05060708);
       assert.equal(join(w.render()), '0102030405060708');
+    });
+  });
+
+  describe('.writeUInt32LE', function() {
+    it('should write bytes', function() {
+      w.writeUInt32LE(0x01020304);
+      w.writeUInt32LE(0x05060708);
+      assert.equal(join(w.render()), '0403020108070605');
+    });
+
+    it('should write max uint32 value', function() {
+      w.writeUInt32LE(0xffffffff);
+      assert.equal(join(w.render()), 'ffffffff');
     });
   });
 

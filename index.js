@@ -218,6 +218,24 @@ WBuf.prototype.writeUInt32BE = function writeUInt32BE(v) {
   }
 };
 
+WBuf.prototype.writeUInt16LE = function writeUInt16LE(num) {
+  var r = ((num & 0xff) << 8) | (num >>> 8);
+  this.writeUInt16BE(r);
+};
+
+WBuf.prototype.writeUInt24LE = function writeUInt24LE(num) {
+  var r = ((num & 0xff) << 16) | (((num >>> 8) & 0xff) << 8) | (num >>> 16);
+  this.writeUInt24BE(r);
+};
+
+WBuf.prototype.writeUInt32LE = function writeUInt32LE(num) {
+  var r = ((num & 0xff) << 24) |
+          (((num >>> 8) & 0xff) << 16) |
+          (((num >>> 16) & 0xff) << 8) |
+          (num >>> 24);
+  this.writeUInt32BE(r);
+};
+
 WBuf.prototype.render = function render() {
   var left = this.size;
   var out = [];
