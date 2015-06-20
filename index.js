@@ -252,3 +252,56 @@ WBuf.prototype.render = function render() {
 
   return out;
 };
+
+// Signed APIs
+WBuf.prototype.writeInt8 = function writeInt8(num) {
+  if (num < 0)
+    return this.writeUInt8(0x100 + num);
+  else
+    return this.writeUInt8(num);
+};
+
+function toUnsigned16(num) {
+  if (num < 0)
+    return 0x10000 + num;
+  else
+    return num;
+}
+
+WBuf.prototype.writeInt16LE = function writeInt16LE(num) {
+  this.writeUInt16LE(toUnsigned16(num));
+};
+
+WBuf.prototype.writeInt16BE = function writeInt16BE(num) {
+  this.writeUInt16BE(toUnsigned16(num));
+};
+
+function toUnsigned24(num) {
+  if (num < 0)
+    return 0x1000000 + num;
+  else
+    return num;
+}
+
+WBuf.prototype.writeInt24LE = function writeInt24LE(num) {
+  this.writeUInt24LE(toUnsigned24(num));
+};
+
+WBuf.prototype.writeInt24BE = function writeInt24BE(num) {
+  this.writeUInt24BE(toUnsigned24(num));
+};
+
+function toUnsigned32(num) {
+  if (num < 0)
+    return (0xffffffff + num) + 1;
+  else
+    return num;
+}
+
+WBuf.prototype.writeInt32LE = function writeInt32LE(num) {
+  this.writeUInt32LE(toUnsigned32(num));
+};
+
+WBuf.prototype.writeInt32BE = function writeInt32BE(num) {
+  this.writeUInt32BE(toUnsigned32(num));
+};

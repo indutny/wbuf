@@ -32,6 +32,14 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.writeInt8', function() {
+    it('should write bytes', function() {
+      w.writeInt8(-1);
+      w.writeInt8(2);
+      assert.equal(join(w.render()), 'ff02');
+    });
+  });
+
   describe('.writeUInt16BE', function() {
     it('should write bytes', function() {
       w.writeUInt16BE(0x0102);
@@ -46,6 +54,14 @@ describe('WriteBuffer', function() {
       w.writeUInt16BE(0x0304);
       w.writeUInt16BE(0x0506);
       assert.equal(join(w.render()), '010203040506');
+    });
+  });
+
+  describe('.writeInt16BE', function() {
+    it('should write bytes', function() {
+      w.writeInt16BE(-0x0102);
+      w.writeInt16BE(0x0304);
+      assert.equal(join(w.render()), 'fefe0304');
     });
   });
 
@@ -66,11 +82,27 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.writeInt16LE', function() {
+    it('should write bytes', function() {
+      w.writeInt16LE(-0x0201);
+      w.writeInt16LE(0x0304);
+      assert.equal(join(w.render()), 'fffd0403');
+    });
+  });
+
   describe('.writeUInt24BE', function() {
     it('should write bytes', function() {
       w.writeUInt24BE(0x010203);
       w.writeUInt24BE(0x040506);
       assert.equal(join(w.render()), '010203040506');
+    });
+  });
+
+  describe('.writeInt24BE', function() {
+    it('should write bytes', function() {
+      w.writeInt24BE(-0x010203);
+      w.writeInt24BE(0x040506);
+      assert.equal(join(w.render()), 'fefdfd040506');
     });
   });
 
@@ -82,11 +114,27 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.writeInt24LE', function() {
+    it('should write bytes', function() {
+      w.writeInt24LE(-0x010203);
+      w.writeInt24LE(0x040506);
+      assert.equal(join(w.render()), 'fdfdfe060504');
+    });
+  });
+
   describe('.writeUInt32BE', function() {
     it('should write bytes', function() {
       w.writeUInt32BE(0x01020304);
       w.writeUInt32BE(0x05060708);
       assert.equal(join(w.render()), '0102030405060708');
+    });
+  });
+
+  describe('.writeInt32BE', function() {
+    it('should write bytes', function() {
+      w.writeInt32BE(-0x01020304);
+      w.writeInt32BE(0x05060708);
+      assert.equal(join(w.render()), 'fefdfcfc05060708');
     });
   });
 
@@ -100,6 +148,14 @@ describe('WriteBuffer', function() {
     it('should write max uint32 value', function() {
       w.writeUInt32LE(0xffffffff);
       assert.equal(join(w.render()), 'ffffffff');
+    });
+  });
+
+  describe('.writeInt32LE', function() {
+    it('should write bytes', function() {
+      w.writeInt32LE(-0x01020304);
+      w.writeInt32LE(0x05060708);
+      assert.equal(join(w.render()), 'fcfcfdfe08070605');
     });
   });
 
