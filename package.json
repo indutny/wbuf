@@ -1,6 +1,6 @@
 {
   "name": "wbuf",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Write buffer",
   "main": "index.js",
   "scripts": {
