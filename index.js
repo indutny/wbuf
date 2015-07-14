@@ -246,7 +246,7 @@ WBuf.prototype.render = function render() {
     if (left >= 0) {
       out.push(buf);
     } else {
-      out.push(buf.slice(0, left));
+      out.push(buf.slice(0, buf.length + left));
     }
   }
 
