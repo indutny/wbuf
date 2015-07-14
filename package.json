@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:indunty/wbuf"
+    "url": "git@github.com:indutny/wbuf"
   },
   "keywords": [
     "Write",
@@ -17,9 +17,9 @@
   "author": "Fedor Indutny <fedor@indutny.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/indunty/wbuf/issues"
+    "url": "https://github.com/indutny/wbuf/issues"
   },
-  "homepage": "https://github.com/indunty/wbuf",
+  "homepage": "https://github.com/indutny/wbuf",
   "devDependencies": {
     "mocha": "^1.21.4"
   }
