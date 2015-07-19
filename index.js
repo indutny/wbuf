@@ -305,3 +305,24 @@ WBuf.prototype.writeInt32LE = function writeInt32LE(num) {
 WBuf.prototype.writeInt32BE = function writeInt32BE(num) {
   this.writeUInt32BE(toUnsigned32(num));
 };
+
+WBuf.prototype.writeComb = function writeComb(size, endian, value) {
+  if (size === 1)
+    return this.writeUInt8(value);
+
+  if (endian === 'le') {
+    if (size === 2)
+      this.writeUInt16LE(value);
+    else if (size === 3)
+      this.writeUInt24LE(value);
+    else if (size === 4)
+      this.writeUInt32LE(value);
+  } else {
+    if (size === 2)
+      this.writeUInt16BE(value);
+    else if (size === 3)
+      this.writeUInt24BE(value);
+    else if (size === 4)
+      this.writeUInt32BE(value);
+  }
+};

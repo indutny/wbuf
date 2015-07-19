@@ -151,6 +151,26 @@ describe('WriteBuffer', function() {
     });
   });
 
+  describe('.combWrite', function() {
+    it('should write bytes', function() {
+      w.writeComb(1, 'le', 0x01);
+      w.writeComb(1, 'be', 0x02);
+      w.writeComb(2, 'le', 0x0102);
+      w.writeComb(2, 'be', 0x0304);
+      w.writeComb(3, 'le', 0x010203);
+      w.writeComb(3, 'be', 0x040506);
+      w.writeComb(4, 'le', 0x01020304);
+      w.writeComb(4, 'be', 0x05060708);
+      assert.equal(join(w.render()),
+                   '0102020103040302010405060403020105060708');
+    });
+
+    it('should write max uint32 value', function() {
+      w.writeUInt32LE(0xffffffff);
+      assert.equal(join(w.render()), 'ffffffff');
+    });
+  });
+
   describe('.writeInt32LE', function() {
     it('should write bytes', function() {
       w.writeInt32LE(-0x01020304);
