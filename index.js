@@ -10,6 +10,9 @@ function WBuf() {
   this.last = null;
   this.offset = 0;
 
+  // Used in slicing
+  this.sliceQueue = null;
+
   // Mostly a constant
   this.reserveRate = 64;
 }
@@ -33,7 +36,17 @@ WBuf.prototype._ensure = function _ensure(n) {
 };
 
 WBuf.prototype._next = function _next() {
-  var buf = new Buffer(this.toReserve);
+  var buf;
+  if (this.sliceQueue === null) {
+    // Most common case
+    buf = new Buffer(this.toReserve);
+  } else {
+    // Only for `.slice()` results
+    buf = this.sliceQueue.shift();
+    if (this.sliceQueue.length === 0)
+      this.sliceQueue = null;
+  }
+
   this.toReserve = 0;
 
   this.buffers.push(buf);
@@ -57,25 +70,73 @@ WBuf.prototype._move = function _move(n) {
 };
 
 WBuf.prototype.slice = function slice(start, end) {
+  // NOTE: We assume here that end <= this.size
+
   if (this.last === null)
     this._next();
 
   var res = new WBuf();
-  res.buffers.push(this.last);
-  res.last = this.last;
-  res.offset = this.offset;
+
+  // Only last chunk is requested
+  if (start >= this.size - this.offset) {
+    res.buffers.push(this.last);
+    res.last = this.last;
+    res.offset = start - this.size + this.offset;
+    res.maxSize = end - start;
+    res.avail = res.maxSize;
+
+    return res;
+  }
+
+  var startIndex = -1;
+  var startOffset = 0;
+  var endIndex = -1;
+
+  // Find buffer indices
+  var offset = 0;
+  for (var i = 0; i < this.buffers.length; i++) {
+    var buf = this.buffers[i];
+    var next = offset + buf.length;
+
+    // Found the start
+    if (start >= offset && start <= next) {
+      startIndex = i;
+      startOffset = start - offset;
+      if (endIndex !== -1)
+        break;
+    }
+    if (end >= offset && end <= next) {
+      endIndex = i;
+      if (startIndex !== -1)
+        break;
+    }
+
+    offset = next;
+  }
+
+  res.last = this.buffers[startIndex];
+  res.offset = startOffset;
   res.maxSize = end - start;
-  res.avail = res.maxSize;
+
+  // Multi-buffer slice
+  if (startIndex < endIndex) {
+    res.sliceQueue = this.buffers.slice(startIndex + 1, endIndex + 1);
+
+    res.last = res.last.slice(res.offset);
+    res.offset = 0;
+  }
+
+  res.avail = res.last.length - res.offset;
+  res.buffers.push(res.last);
 
   return res;
 };
 
 WBuf.prototype.skip = function skip(n) {
   if (n === 0)
-    return;
-  this._ensure(n);
+    return this.slice(this.size, this.size);
 
-  var res = this.slice(this.size, this.size + n);
+  this._ensure(n);
 
   var left = n;
   while (left > 0) {
@@ -95,7 +156,7 @@ WBuf.prototype.skip = function skip(n) {
 
   this._rangeCheck();
 
-  return res;
+  return this.slice(this.size - n, this.size);
 };
 
 WBuf.prototype.write = function write(str) {
@@ -208,6 +269,7 @@ WBuf.prototype.writeUInt32BE = function writeUInt32BE(v) {
   // Three bytes here
   } else if (this.offset + 3 <= this.last.length) {
     this.writeUInt24BE(v >>> 8);
+    this._next();
     this.last[this.offset++] = v & 0xff;
     this._move(1);
 

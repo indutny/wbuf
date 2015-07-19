@@ -128,6 +128,13 @@ describe('WriteBuffer', function() {
       w.writeUInt32BE(0x05060708);
       assert.equal(join(w.render()), '0102030405060708');
     });
+
+    it('should write bytes on the boundary', function() {
+      w.reserve(4);
+      w.writeUInt8(0x00);
+      w.writeUInt32BE(0x01020304);
+      assert.equal(join(w.render()), '0001020304');
+    });
   });
 
   describe('.writeInt32BE', function() {
@@ -184,6 +191,66 @@ describe('WriteBuffer', function() {
       w.skip(4);
       w.writeUInt32BE(0xdeadbeef);
       assert(/^.{8}deadbeef$/.test(join(w.render())));
+    });
+
+    it('should skip 0 bytes', function() {
+      var skip = w.skip(0);
+      assert.equal(skip.size, 0);
+      w.writeUInt32BE(0xdeadbeef);
+      assert(/^deadbeef$/.test(join(w.render())));
+    });
+
+    it('should skip bytes on the boundary', function() {
+      w.reserve(4);
+      w.writeUInt8(0x01);
+      var skip = w.skip(4);
+      w.writeUInt32BE(0xdeadbeef);
+      skip.writeUInt32BE(0xabbabaab);
+      assert(/^01abbabaabdeadbeef$/.test(join(w.render())));
+    });
+  });
+
+  describe('.slice', function() {
+    it('should return empty slice', function() {
+      w.writeUInt32BE(0xabbadead);
+      assert.equal(join(w.slice(4, 4).render()), '');
+      assert.equal(join(w.render()), 'abbadead');
+    });
+
+    it('should return full slice', function() {
+      w.writeUInt32BE(0xabbadead);
+      var slice = w.slice(0, 4);
+      slice.writeUInt32BE(0xdeadbeef);
+      assert.equal(join(slice.render()), 'deadbeef');
+      assert.equal(join(w.render()), 'deadbeef');
+    });
+
+    it('should return partial slice', function() {
+      w.writeUInt32BE(0xabbadead);
+      var slice = w.slice(0, 3);
+      slice.writeUInt24BE(0xdeadbe);
+      assert.equal(join(slice.render()), 'deadbe');
+      assert.equal(join(w.render()), 'deadbead');
+    });
+
+    it('should return over-the-boundary slice', function() {
+      for (var i = 0; i < 16; i++) {
+        w.reserve(3);
+        w.writeUInt24BE(i);
+      }
+      assert.equal(join(w.render()),
+                   '000000000001000002000003000004000005000006000007' +
+                       '00000800000900000a00000b00000c00000d00000e00000f');
+
+      var slice = w.slice(5, 12);
+      slice.writeUInt24BE(0xaaabac);
+      slice.writeUInt24BE(0xbabbbc);
+      slice.writeUInt8(0xcc);
+
+      assert.equal(join(slice.render()), 'aaabacbabbbccc');
+      assert.equal(join(w.render()),
+                   '0000000000aaabacbabbbccc000004000005000006000007' +
+                       '00000800000900000a00000b00000c00000d00000e00000f');
     });
   });
 
