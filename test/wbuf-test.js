@@ -325,4 +325,15 @@ describe('WriteBuffer', function() {
         'deadbeefabbadead');
     });
   });
+
+  describe('.forceReserve = true', function() {
+    it('should allocate more bytes', function() {
+      w.forceReserve = true;
+      w.reserve(4);
+      w.writeUInt32BE(0xabbadead);
+      w.writeUInt32BE(0xabbadead);
+
+      assert.equal(w.render().length, 1);
+    });
+  });
 });

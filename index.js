@@ -13,6 +13,8 @@ function WBuf() {
   // Used in slicing
   this.sliceQueue = null;
 
+  this.forceReserve = false;
+
   // Mostly a constant
   this.reserveRate = 64;
 }
@@ -20,6 +22,10 @@ module.exports = WBuf;
 
 WBuf.prototype.reserve = function reserve(n) {
   this.toReserve += n;
+
+  // Force reservation of extra bytes
+  if (this.forceReserve)
+    this.toReserve = Math.max(this.toReserve, this.reserveRate);
 };
 
 WBuf.prototype._ensure = function _ensure(n) {
