@@ -69,7 +69,6 @@ WBuf.prototype._rangeCheck = function _rangeCheck() {
 
 WBuf.prototype._move = function _move(n) {
   this.size += n;
-  this.avail -= n;
   if (this.avail === 0)
     this.last = null;
 
@@ -218,6 +217,7 @@ WBuf.prototype.writeUInt8 = function writeUInt8(v) {
   this._ensure(1);
 
   this.last[this.offset++] = v;
+  this.avail--;
   this._move(1);
 };
 
@@ -228,12 +228,14 @@ WBuf.prototype.writeUInt16BE = function writeUInt16BE(v) {
   if (this.avail >= 2) {
     this.last.writeUInt16BE(v, this.offset, true);
     this.offset += 2;
+    this.avail -= 2;
 
   // One byte here, one byte there
   } else {
     this.last[this.offset] = (v >>> 8);
     this._next();
     this.last[this.offset++] = v & 0xff;
+    this.avail--;
   }
 
   this._move(2);
@@ -247,6 +249,7 @@ WBuf.prototype.writeUInt24BE = function writeUInt24BE(v) {
     this.last.writeUInt16BE(v >>> 8, this.offset, true);
     this.last[this.offset + 2] = v & 0xff;
     this.offset += 3;
+    this.avail -= 3;
     this._move(3);
 
   // Two bytes here
@@ -254,6 +257,7 @@ WBuf.prototype.writeUInt24BE = function writeUInt24BE(v) {
     this.last.writeUInt16BE(v >>> 8, this.offset, true);
     this._next();
     this.last[this.offset++] = v & 0xff;
+    this.avail--;
     this._move(3);
 
   // Just one byte here
@@ -269,16 +273,18 @@ WBuf.prototype.writeUInt32BE = function writeUInt32BE(v) {
   this._ensure(4);
 
   // Fast case - everything fits into the last buffer
-  if (this.offset + 4 <= this.last.length) {
+  if (this.avail >= 4) {
     this.last.writeUInt32BE(v, this.offset, true);
     this.offset += 4;
+    this.avail -= 4;
     this._move(4);
 
   // Three bytes here
-  } else if (this.offset + 3 <= this.last.length) {
+  } else if (this.avail >= 3) {
     this.writeUInt24BE(v >>> 8);
     this._next();
     this.last[this.offset++] = v & 0xff;
+    this.avail--;
     this._move(1);
 
   // Slow case, who cares

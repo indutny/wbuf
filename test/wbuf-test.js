@@ -96,6 +96,14 @@ describe('WriteBuffer', function() {
       w.writeUInt24BE(0x040506);
       assert.equal(join(w.render()), '010203040506');
     });
+
+    it('should correctly set avail on boundary', function() {
+      w = new WriteBuffer();
+      w.reserveRate = 4;
+      w.writeUInt16BE(1);
+      w.writeUInt24BE(1);
+      assert.equal(w.avail, 3);
+    });
   });
 
   describe('.writeInt24BE', function() {
