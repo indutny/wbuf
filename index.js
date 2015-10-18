@@ -1,3 +1,4 @@
+var assert = require('minimalistic-assert');
 var Buffer = require('buffer').Buffer;
 
 function WBuf() {
@@ -76,7 +77,8 @@ WBuf.prototype._move = function _move(n) {
 };
 
 WBuf.prototype.slice = function slice(start, end) {
-  // NOTE: We assume here that end <= this.size
+  assert(0 <= start && start <= this.size);
+  assert(0 <= end && end <= this.size);
 
   if (this.last === null)
     this._next();
