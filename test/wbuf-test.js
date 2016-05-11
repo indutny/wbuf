@@ -216,6 +216,16 @@ describe('WriteBuffer', function() {
       skip.writeUInt32BE(0xabbabaab);
       assert(/^01abbabaabdeadbeef$/.test(join(w.render())));
     });
+
+    it('should skip bytes on the boundary in two chunks', function() {
+      w.reserve(4);
+      var skip1 = w.skip(2);
+      var skip2 = w.skip(2);
+      w.writeUInt32BE(0xdeadbeef);
+      skip1.writeUInt16BE(0xabba);
+      skip2.writeUInt16BE(0xbaba);
+      assert(/^abbababadeadbeef$/.test(join(w.render())));
+    });
   });
 
   describe('.slice', function() {

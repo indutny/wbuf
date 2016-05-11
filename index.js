@@ -151,10 +151,12 @@ WBuf.prototype.skip = function skip(n) {
     left -= toSkip;
     this.size += toSkip;
     if (toSkip === this.avail) {
-      if (left !== 0)
+      if (left !== 0) {
         this._next();
-      else
+      } else {
         this.avail -= toSkip;
+        this.offset += toSkip;
+      }
     } else {
       this.offset += toSkip;
       this.avail -= toSkip;
@@ -200,10 +202,12 @@ WBuf.prototype.copyFrom = function copyFrom(buf, start, end) {
     off += toCopy;
     this.size += toCopy;
     if (toCopy === this.avail) {
-      if (off !== len)
+      if (off !== len) {
         this._next();
-      else
+      } else {
         this.avail = 0;
+        this.offset += toCopy;
+      }
     } else {
       this.offset += toCopy;
       this.avail -= toCopy;
