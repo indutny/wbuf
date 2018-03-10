@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/indutny/wbuf",
   "devDependencies": {
-    "mocha": "^1.21.4"
+    "mocha": "^5.0.4"
   },
   "dependencies": {
     "minimalistic-assert": "^1.0.0"
