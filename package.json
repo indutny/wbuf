@@ -3,6 +3,10 @@
   "version": "1.7.2",
   "description": "Write buffer",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
   "scripts": {
     "test": "mocha test/**/*-test.js"
   },
